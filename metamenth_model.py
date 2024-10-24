@@ -23,6 +23,8 @@ from metamenth.subsystem.hvac_components.air_volume_box import AirVolumeBox
 from metamenth.subsystem.hvac_components.damper import Damper
 from metamenth.transducers.actuator import Actuator
 from metamenth.subsystem.hvac_components.controller import Controller
+from metamenth.subsystem.hvac_components.filter import Filter
+from metamenth.structure.open_space import OpenSpace
 
 
 class MetamenthModel:
@@ -33,7 +35,7 @@ class MetamenthModel:
 
     def __init__(self):
         # building address
-        address = Address("Montreal", "6399 Rue Sherbrooke", "QC", "H1N 2Z3", "Canada")
+        address = Address("Montreal", "123 Main St", "Quebec", "H3A 1A1", "Canada")
 
         # create office one
         area = MeasureFactory.create_measure(RecordingType.BINARY.value,
@@ -50,7 +52,7 @@ class MetamenthModel:
         height = MeasureFactory.create_measure(RecordingType.BINARY.value,
                                                Measure(MeasurementUnit.METERS, 30))
         internal_mass = MeasureFactory.create_measure(RecordingType.BINARY.value,
-                                                      Measure(MeasurementUnit.KILOGRAMS, 2000))
+                                                      Measure(MeasurementUnit.KILOGRAMS, 5000))
 
         self.building = Building(2009, height, floor_area, internal_mass, address,
                                  BuildingType.COMMERCIAL, [floor])
@@ -87,8 +89,11 @@ class MetamenthModel:
         # create the zones and assigned them to their respective spaces
         hvac_zone_1 = Zone("HVAC Zone 1", ZoneType.HVAC, HVACType.INTERIOR)
         hvac_zone_2 = Zone("HVAC Zone 1", ZoneType.HVAC, HVACType.INTERIOR)
+        # set hvac_zone_2 as adjacent to hvac_zone_1
+        hvac_zone_2.add_adjacent_zones([hvac_zone_1])
         # e.g., the code below adds Office 1 to HVAC Zone 1
-        self.building.get_floor_by_number(1).get_room_by_name('Office 1').add_zone(hvac_zone_1, self.building)
+        self.building.get_floor_by_number(1).get_room_by_name('Office 1').add_zone(hvac_zone_2, self.building)
+        # add the rest of the spaces to their respective zones
 
     def add_sensors_to_spaces(self):
         """
