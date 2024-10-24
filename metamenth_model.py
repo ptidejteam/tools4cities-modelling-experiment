@@ -1,8 +1,9 @@
 from metamenth.datatypes.address import Address
 from metamenth.datatypes.measure import Measure
 from metamenth.enumerations import HVACType
-from metamenth.enumerations import (RecordingType, MeasurementUnit, RoomType, FloorType, BuildingType,
-                                    DuctType, DuctSubType, DuctConnectionEntityType, VentilationType)
+from metamenth.enumerations import RecordingType, MeasurementUnit, RoomType, FloorType, BuildingType, AirVolumeType
+from metamenth.enumerations import DuctType, DuctSubType, DuctConnectionEntityType, VentilationType, PowerState
+from metamenth.enumerations import DamperType
 from metamenth.enumerations import SensorMeasure
 from metamenth.enumerations import SensorMeasureType
 from metamenth.enumerations import ZoneType
@@ -17,6 +18,11 @@ from metamenth.subsystem.hvac_components.duct_connection import DuctConnection
 from metamenth.subsystem.ventilation_system import VentilationSystem
 from metamenth.subsystem.hvac_system import HVACSystem
 from metamenth.subsystem.building_control_system import BuildingControlSystem
+from metamenth.subsystem.hvac_components.fan import Fan
+from metamenth.subsystem.hvac_components.air_volume_box import AirVolumeBox
+from metamenth.subsystem.hvac_components.damper import Damper
+from metamenth.transducers.actuator import Actuator
+from metamenth.subsystem.hvac_components.controller import Controller
 
 
 class MetamenthModel:
@@ -56,7 +62,15 @@ class MetamenthModel:
         self.add_hvac_components_to_ducts()
 
     def task_two(self):
-        pass
+        """
+        Note: do not modify any of MetamEnTh's classes in this tasks
+        Note it whenever you're not able to complete a task (listed below)
+        - A (control) relationship between the actuator and the temperature sensor connected to the controller
+        - Add the pressure sensor to the kitchen (create a relationship between the two)
+        - Add any of the dampers to Office 1
+        - Add the Actuator to the Corridor
+        """
+        # Your code below
 
     def create_building_structure(self):
         """
@@ -134,7 +148,7 @@ class MetamenthModel:
 
         # connect the return air duct to the connection object
 
-        # create the recirculation (fresh) air duct
+        # create the recirculation (fresh) air duct with name: RECIRCULATION.AIR.DUC
 
         # create a duct connection object for (duct.connections) the recirculation air duct
 
@@ -154,4 +168,63 @@ class MetamenthModel:
         """
         Add the various components, e.g., fan to their respective ducts
         """
-        pass
+        control_system = self.building.control_systems[0]
+        ventilation_system = control_system.hvac_system.ventilation_systems[0]
+        # supply air duct
+        supply_air_duct = ventilation_system.principal_duct
+
+        # recirculation air duct
+        # Note, this will fail if you don't create the recirculation air duct in create_hvac_ducts()
+        recirculation_air_duct = supply_air_duct.connections.get_source_entities({'name': 'RECIRCULATION.AIR.DUC'})[0]
+
+        # return air duct
+        # Note, this will fail if you don't create the recirculation air duct in create_hvac_ducts()
+        return_air_duct = recirculation_air_duct.connections.get_source_entities({'name': 'RETURN.AIR.DUC'})[0]
+
+        # add fan to the supply air duct
+        supp_air_duct_fan = Fan("SUPP.AIR.DUCT.FAN", PowerState.ON, None)
+        supply_air_duct.add_fan(supp_air_duct_fan)
+
+        # add filter to the supply air duct (use the Filter class)
+
+        # add one heat exchanger to the supply air duct (use the HeatExchanger class)
+
+        # add one temperature sensor to the supply air duct
+
+        # add the damper to the supply air duct
+
+        # add VAV Box 1 with a damper and temperature sensor to supply air duct
+        vav_box_1 = AirVolumeBox('VAV.BOX.1', AirVolumeType.VARIABLE_AIR_VOLUME)
+        vav_box_1.has_cooling_capability = True
+        vav_box_1.has_heating_capability = True
+        # create damper and add it to the vav box
+        vav_box_1_damper = Damper("VAV.BOX.1.DAMPER", DamperType.BACK_DRAFT)
+        vav_box_1.inlet_dampers = [vav_box_1_damper]
+        # create temperature sensor and add it to the VAV box
+        vav_box_1_temp_sensor = Sensor("VAV.BOX.1.TEMP.SENSOR", SensorMeasure.TEMPERATURE,
+                                       MeasurementUnit.DEGREE_CELSIUS, SensorMeasureType.THERMO_COUPLE_TYPE_B,
+                                       90)
+        vav_box_1.add_transducer(vav_box_1_temp_sensor)
+        supply_air_duct.add_connected_air_volume_box(vav_box_1)
+
+        # indicate that vav box one supplies Office 1 & 2 and the Corridor
+        building_floor = self.building.get_floor_by_number(1)
+        vav_box_1.add_spaces([building_floor.get_room_by_name('Office 1'),
+                              building_floor.get_room_by_name('Office 2'),
+                              building_floor.get_room_by_name('Corridor')])
+
+        # add VAV Box 2 with damper and temperature sensor to the supply air duct
+
+        # create and add fan to the return air duct
+
+        # create the actuator (use the Actuator class)
+
+        # associate the actuator with the fan (use the trigger_out property of actuator)
+
+        # create a controller (use the Controller class)
+
+        # associate the actuator with the controller (use the controller property)
+
+        # associate the controller with the actuator (use add_controller_entity method)
+
+        # create a temperature sensor and associate it with the controller (use add_transducer method)
