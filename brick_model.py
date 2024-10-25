@@ -53,6 +53,9 @@ class BrickModel:
         self.kitchen = None
         self.office_two = None
         self.corridor = None
+        self.ahu = None
+        self.hvac_zone_2 = None
+        self.hvac_zone_1 = None
 
     def task_one(self):
         pass
@@ -81,20 +84,20 @@ class BrickModel:
         # Create the corridor and assign it to the floor (use BRICK.Room to create corridor)
 
         # Define HVAC zones
-        hvac_zone_1 = self.bldg["HVAC_Zone_1"]
-        hvac_zone_2 = self.bldg["HVAC_Zone_2"]
+        self.hvac_zone_1 = self.bldg["HVAC_Zone_1"]
+        self.hvac_zone_2 = self.bldg["HVAC_Zone_2"]
 
-        self.graph.add((hvac_zone_1, A, BRICK.HVAC_Zone))
-        self.graph.add((hvac_zone_1, BRICK.hasName, Literal("HVAC Zone 1", datatype=XSD.string)))
-        self.graph.add((hvac_zone_2, A, BRICK.HVAC_Zone))
-        self.graph.add((hvac_zone_2, BRICK.hasName, Literal("HVAC Zone 2", datatype=XSD.string)))
+        self.graph.add((self.hvac_zone_1, A, BRICK.HVAC_Zone))
+        self.graph.add((self.hvac_zone_1, BRICK.hasName, Literal("HVAC Zone 1", datatype=XSD.string)))
+        self.graph.add((self.hvac_zone_2, A, BRICK.HVAC_Zone))
+        self.graph.add((self.hvac_zone_2, BRICK.hasName, Literal("HVAC Zone 2", datatype=XSD.string)))
 
         # Add zones to the building
-        self.graph.add((self.building, BRICK.hasPart, hvac_zone_1))
-        self.graph.add((self.building, BRICK.hasPart, hvac_zone_2))
+        self.graph.add((self.building, BRICK.hasPart, self.hvac_zone_1))
+        self.graph.add((self.building, BRICK.hasPart, self.hvac_zone_2))
 
         # add office 1 to HVAC Zone 2
-        self.graph.add((hvac_zone_2, BRICK.hasPart, self.office_one))
+        self.graph.add((self.hvac_zone_2, BRICK.hasPart, self.office_one))
 
         # add office 2 and the corridor to HVAC Zone 2
 
@@ -122,8 +125,68 @@ class BrickModel:
         # Add CO2, CO (BRICK.CO_Sensor), humidity and temperature sensors to the Kitchen
 
     def create_hvac_ducts(self):
-        pass
+        """
+        Use tha Air_Handling_Unit in Bricks.
+        Currently, there is no support for ventilation ducts.
+        The three connected ducts can be modelled as an air handling unit
+        """
+        # Add an air handling unit (AHU)
+        self.ahu = self.bldg["AHU"]
+        self.graph.add((self.ahu, A, BRICK.Air_Handling_Unit))
+        self.graph.add((self.building, BRICK.hasPart, self.ahu))
 
     def add_hvac_components_to_ducts(self):
-        pass
+        # create a heat exchanger and add it to the AHU
+        heat_exchanger_1 = self.bldg["Heat_Exchanger_1"]
+        self.graph.add((heat_exchanger_1, A, BRICK.Heat_Exchanger))
+        self.graph.add((self.ahu, BRICK.hasPart, heat_exchanger_1))
 
+        # create the second heat exchanger and add it to the AHU
+
+        # create the supply air fan and add it to the AHU
+        supply_air_fan = self.bldg["Supply_Air_Fan"]
+        self.graph.add((supply_air_fan, A, BRICK.Supply_Fan))
+        self.graph.add((self.ahu, BRICK.hasPart, supply_air_fan))
+
+        # create the return air fan and add it to the AHU
+
+        # create VAV Box 1 with damper and temperature sensor and add it to the AHU
+        vav_box_1 = self.bldg["VAV_Box_1"]
+        self.graph.add((vav_box_1, A, BRICK.Variable_Air_Volume_Box_With_Reheat))
+        # create damper for VAV Box 1
+        vav_box_1_damper = self.bldg["VAV_Box_1_DAMPER"]
+        self.graph.add((vav_box_1_damper, A, BRICK.Damper))
+        self.graph.add((vav_box_1, BRICK.hasPart, vav_box_1_damper))
+        # create temperature sensor for VAV Box 1
+        vav_box_1_temp_sensor = self.bldg["VAV_BOX_1_Temperature_Sensor"]
+        self.graph.add((vav_box_1_temp_sensor, A, BRICK.Temperature_Sensor))
+        self.graph.add((vav_box_1, BRICK.hasPoint, vav_box_1_temp_sensor))
+        # indicate the zone fed by vav box 1
+        self.graph.add((self.hvac_zone_2, BRICK.isFedBy, vav_box_1))
+        self.graph.add((self.ahu, BRICK.hasPart, vav_box_1))
+
+        # create VAV Box 2 with damper and temperature sensor and add it to the AHU
+
+        # add one temperature sensor to the AHU
+
+        # add filter to the AHU (use BRICK.Filter)
+
+        # add one damper to the AHU
+
+        # Add the actuator in the return air duct (AHU)
+        actuator = self.bldg["Actuator1"]
+        self.graph.add((actuator, A, BRICK.Point)) # There is no Actuator class in Brick
+        self.graph.add((actuator, BRICK.hasTag, BRICK.Actuator))
+
+        # create the controller in the return air duct (AHU)
+        controller = self.bldg["Controller"]
+        self.graph.add((controller, A, BRICK.Controller))
+
+        # establish relationship between actuator and controller
+        self.graph.add((controller, BRICK.hasPoint, actuator))
+        # indicate the actuator controls (BRICK.controls) the return air fan
+        # (the fan should be been created above)
+
+        # create the temperature sensor and associate it with controller
+
+        # add the controller and actuator to the return air duct (AHU)
