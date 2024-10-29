@@ -92,6 +92,9 @@ class BrickModel:
         self.graph.add((self.hvac_zone_2, A, BRICK.HVAC_Zone))
         self.graph.add((self.hvac_zone_2, BRICK.hasName, Literal("HVAC Zone 2", datatype=XSD.string)))
 
+        # Make HVAC Zone 2 adjacent to HVAC Zone 1
+        self.graph.add((self.hvac_zone_2, BRICK.adjacentTo, self.hvac_zone_1))
+
         # Add zones to the building
         self.graph.add((self.building, BRICK.hasPart, self.hvac_zone_1))
         self.graph.add((self.building, BRICK.hasPart, self.hvac_zone_2))
