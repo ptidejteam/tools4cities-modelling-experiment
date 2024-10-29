@@ -174,8 +174,8 @@ class BrickModel:
         # add one damper to the AHU
 
         # Add the actuator in the return air duct (AHU)
-        actuator = self.bldg["Actuator1"]
-        self.graph.add((actuator, A, BRICK.Point)) # There is no Actuator class in Brick
+        actuator = self.bldg["Actuator"]
+        self.graph.add((actuator, A, BRICK.Point))  # There is no Actuator class in Brick
         self.graph.add((actuator, BRICK.hasTag, BRICK.Actuator))
 
         # create the controller in the return air duct (AHU)
@@ -190,3 +190,10 @@ class BrickModel:
         # create the temperature sensor and associate it with controller
 
         # add the controller and actuator to the return air duct (AHU)
+
+
+if __name__ == "__main__":
+    model = BrickModel()
+    model.task_one()
+    model.task_two()
+    model.graph.serialize(destination="building_model.ttl", format="turtle")

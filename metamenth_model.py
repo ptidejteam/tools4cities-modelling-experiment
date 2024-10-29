@@ -233,3 +233,10 @@ class MetamenthModel:
         # associate the controller with the actuator (use add_controller_entity method)
 
         # create a temperature sensor and associate it with the controller (use add_transducer method)
+
+
+if __name__ == "__main__":
+    model = MetamenthModel()
+    model.task_two()
+    model.task_two()
+    print(model.building)
