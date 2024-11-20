@@ -58,10 +58,20 @@ class BrickModel:
         self.hvac_zone_1 = None
 
     def task_one(self):
-        pass
+        self.create_building_structure()
+        self.add_sensors_to_spaces()
+        self.create_hvac_ducts()
+        self.add_hvac_components_to_ducts()
 
     def task_two(self):
-        pass
+        """
+            Note it whenever you're not able to complete a task (listed below)
+            - A (control) relationship between the actuator and the temperature sensor connected to the controller
+            - Add the pressure sensor to the kitchen (create a relationship between the two)
+            - Add any of the dampers to Office 1
+            - Add the Actuator to the Corridor
+        """
+        # Your code below
 
     def create_building_structure(self):
         # Define the floor of the building
@@ -171,6 +181,8 @@ class BrickModel:
         # create VAV Box 2 with damper and temperature sensor and add it to the AHU
 
         # add one temperature sensor to the AHU
+
+        # add one pressure sensor to the AHU
 
         # add filter to the AHU (use BRICK.Filter)
 

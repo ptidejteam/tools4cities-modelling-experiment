@@ -114,7 +114,7 @@ class MetamenthModel:
 
         # Add the remaining sensors to Office 1
 
-        # Create and add sensors to Office 2
+        # Add CO2, humidity and temperature sensors to Office 2
 
         # Create and add sensors to the Corridor
 
@@ -195,6 +195,8 @@ class MetamenthModel:
         # add one heat exchanger to the supply air duct (use the HeatExchanger class)
 
         # add one temperature sensor to the supply air duct
+
+        # add one pressure sensor to the supply air duct
 
         # add the damper to the supply air duct
 
