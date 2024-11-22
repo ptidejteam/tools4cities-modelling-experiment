@@ -70,6 +70,8 @@ class BrickModel:
             - Add the pressure sensor to the kitchen (create a relationship between the two)
             - Add any of the dampers to Office 1
             - Add the Actuator to the Corridor
+            Refer to the task's details here:
+            https://docs.google.com/document/d/1DKp66AMj7PCMVDVlVCib_uWwevcJitAwiD9xCYG1w9E/edit?usp=sharing
         """
         # Your code below
 
