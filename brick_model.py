@@ -4,7 +4,10 @@ from rdflib import Namespace, Literal, XSD
 
 
 class BrickModel:
-
+    """
+        Refer to the experiment document here
+        https://docs.google.com/document/d/1DKp66AMj7PCMVDVlVCib_uWwevcJitAwiD9xCYG1w9E/edit?usp=sharing
+    """
     def __init__(self):
         # create the building
         self.bldg = Namespace("https://www.ptidej.net:experimental-building#")
