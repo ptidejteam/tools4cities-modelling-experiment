@@ -1,2 +1,2 @@
-metamenth==1.0.3
+metamenth
 brickschema==0.7.5
