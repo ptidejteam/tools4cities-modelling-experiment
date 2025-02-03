@@ -61,6 +61,9 @@ class MetamenthModel:
         self.building = Building(2009, height, floor_area, internal_mass, address,
                                  BuildingType.COMMERCIAL, [floor])
 
+        self.return_air_duct = None
+        self.vav_box_1_damper = None
+
     def task_one(self):
         self.create_building_structure()
         self.add_sensors_to_spaces()
@@ -78,7 +81,25 @@ class MetamenthModel:
         Refer to the task's details here:
         https://docs.google.com/document/d/1DKp66AMj7PCMVDVlVCib_uWwevcJitAwiD9xCYG1w9E/edit?usp=sharing
         """
-        # Your code below
+        # Relationship between actuator and sensor. use self.return_air_duct.get_transducer_by_name('ACT') to get actuator
+        # Use actuator.controller.get_transducer_by_name('CTRL.SENSOR') to get the temperature sensor
+        # Note: When you encounter and error that can't be resolved, comment the code and move on to the next section
+
+
+        # Create and add pressure sensor to the kitchen
+        # Use self.building.get_floor_by_number(1).get_room_by_name('Kitchen') to get the kitchen
+        # Run the code after this task note the output comment it out and continue to the next item
+
+
+        # Add self.vav_box_1_damper to office one
+        # Use self.building.get_floor_by_number(1).get_room_by_name('Office 1') to get Office 1
+        # Use .add_hvac_component method to add the VAV BOX
+        # Note the error, comment the code and move on to the next item
+
+
+        # Add the actuator to the corridor
+        # Use self.building.get_floor_by_number(1).get_open_space_by_name('Corridor') to get the corridor
+        # Use .add_transducer() to add the actuator to the corridor
 
     def create_building_structure(self):
         """
@@ -134,8 +155,8 @@ class MetamenthModel:
         supply_air_duct.duct_sub_type = DuctSubType.FRESH_AIR
 
         # create the return air duct
-        return_air_duct = Duct("RETURN.AIR.DUCT", DuctType.AIR)
-        return_air_duct.duct_sub_type = DuctSubType.RETURN_AIR
+        self.return_air_duct = Duct("RETURN.AIR.DUCT", DuctType.AIR)
+        self.return_air_duct.duct_sub_type = DuctSubType.RETURN_AIR
 
         # connect the supply air that to the rooms with the spaces as the destination
         sup_air_space_conn = DuctConnection()
@@ -194,9 +215,6 @@ class MetamenthModel:
         # for the supply air duct in create_hvac_ducts()
         recirculation_air_duct = supply_air_duct.connections.get_source_entities({'name': 'RECIRCULATION.AIR.DUCT'})[0]
 
-        # return air duct
-        # Note, this will fail if you don't create the recirculation air duct in create_hvac_ducts()
-        return_air_duct = recirculation_air_duct.connections.get_source_entities({'name': 'RETURN.AIR.DUCT'})[0]
 
         # add fan to the supply air duct
         supp_air_duct_fan = Fan("SUPP.AIR.DUCT.FAN", PowerState.ON, None)
@@ -216,8 +234,8 @@ class MetamenthModel:
         vav_box_1.has_cooling_capability = True
         vav_box_1.has_heating_capability = True
         # create damper and add it to the vav box
-        vav_box_1_damper = Damper("VAV.BOX.1.DAMPER", DamperType.BACK_DRAFT)
-        vav_box_1.inlet_dampers = [vav_box_1_damper]
+        self.vav_box_1_damper = Damper("VAV.BOX.1.DAMPER", DamperType.BACK_DRAFT)
+        vav_box_1.inlet_dampers = [self.vav_box_1_damper]
         # create temperature sensor and add it to the VAV box
         vav_box_1_temp_sensor = Sensor("VAV.BOX.1.TEMP.SENSOR", SensorMeasure.TEMPERATURE,
                                        MeasurementUnit.DEGREE_CELSIUS, SensorMeasureType.THERMO_COUPLE_TYPE_B,
@@ -237,8 +255,10 @@ class MetamenthModel:
 
         # create and add fan to the return air duct
 
-        # create the actuator (use the Actuator class) and associate the actuator with the fan in the return air duct
+        # create the actuator (use the Actuator class) and associate the actuator with the fan in the return air duct fan
         # (use the trigger_out property of actuator)
+
+        # add the actuator to the return air duct
 
         # create a controller (use the Controller class)
 

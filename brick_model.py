@@ -59,6 +59,9 @@ class BrickModel:
         self.ahu = None
         self.hvac_zone_2 = None
         self.hvac_zone_1 = None
+        self.ahu_temp_sensor = None
+        self.actuator = None
+        self.vav_box_1_damper = None
 
     def task_one(self):
         self.create_building_structure()
@@ -76,7 +79,13 @@ class BrickModel:
             Refer to the task's details here:
             https://docs.google.com/document/d/1DKp66AMj7PCMVDVlVCib_uWwevcJitAwiD9xCYG1w9E/edit?usp=sharing
         """
-        # Your code below
+        # control relationship (use self.actuator and self.ahu_temp_sensor)
+
+        # pressure sensor to the kitchen (create pressure sensor, use self.kitchen)
+
+        # add damper to office one (use self.vav_box_1_damper and self.office_one with BRICK.hasPart)
+
+        # add actuator to the corridor (corridor has part)
 
     def create_building_structure(self):
         # Define the floor of the building
@@ -172,9 +181,9 @@ class BrickModel:
         vav_box_1 = self.bldg["VAV_Box_1"]
         self.graph.add((vav_box_1, A, BRICK.Variable_Air_Volume_Box_With_Reheat))
         # create damper for VAV Box 1
-        vav_box_1_damper = self.bldg["VAV_Box_1_DAMPER"]
-        self.graph.add((vav_box_1_damper, A, BRICK.Damper))
-        self.graph.add((vav_box_1, BRICK.hasPart, vav_box_1_damper))
+        self.vav_box_1_damper = self.bldg["VAV_Box_1_DAMPER"]
+        self.graph.add((self.vav_box_1_damper, A, BRICK.Damper))
+        self.graph.add((vav_box_1, BRICK.hasPart, self.vav_box_1_damper))
         # create temperature sensor for VAV Box 1
         vav_box_1_temp_sensor = self.bldg["VAV_BOX_1_Temperature_Sensor"]
         self.graph.add((vav_box_1_temp_sensor, A, BRICK.Temperature_Sensor))
@@ -185,7 +194,7 @@ class BrickModel:
 
         # create VAV Box 2 with damper and temperature sensor and add it to the AHU
 
-        # add one temperature sensor to the AHU
+        # add one temperature sensor to the AHU (use self.ahu_temp_sensor)
 
         # add one pressure sensor to the AHU (use Brick.Pressure_Sensor)
 
@@ -193,17 +202,17 @@ class BrickModel:
 
         # add one damper to the AHU (use Brick.Damper)
 
-        # Add the actuator in the return air duct (AHU)
-        actuator = self.bldg["Actuator"]
-        self.graph.add((actuator, A, BRICK.Point))  # There is no Actuator class in Brick
-        self.graph.add((actuator, BRICK.hasTag, BRICK.Actuator))
+        # Add the actuator in the return air duct (AHU), use self.actuator
+        self.actuator = self.bldg["Actuator"]
+        self.graph.add((self.actuator, A, BRICK.Point))  # There is no Actuator class in Brick
+        self.graph.add((self.actuator, BRICK.hasTag, BRICK.Actuator))
 
         # create the controller in the return air duct (AHU)
         controller = self.bldg["Controller"]
         self.graph.add((controller, A, BRICK.Controller))
 
         # establish relationship between actuator and controller
-        self.graph.add((controller, BRICK.hasPoint, actuator))
+        self.graph.add((controller, BRICK.hasPoint, self.actuator))
         # indicate the actuator controls (BRICK.controls) the return air fan
         # (the fan should be been created above)
 
