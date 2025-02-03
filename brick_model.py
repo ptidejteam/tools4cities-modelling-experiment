@@ -33,21 +33,21 @@ class BrickModel:
         self.graph.add((address, BRICK.country, Literal("Canada")))
 
         internal_mass = self.bldg["Internal_Mass"]
-        self.graph.add((internal_mass, A.type, self.qudt.Quantity))
+        self.graph.add((internal_mass, A, self.qudt.Quantity))
         self.graph.add((internal_mass, self.qudt.unit, self.qudt_unit.Kilogram))
         self.graph.add((internal_mass, self.qudt.numericValue, Literal(50000, datatype=XSD.decimal)))
         self.graph.add((self.building, self.bldg.hasInternalMass, internal_mass))
 
         # Define the height of the building
         height = self.bldg["Height"]
-        self.graph.add((height, A.type, self.qudt.QuantityValue))
+        self.graph.add((height, A, self.qudt.QuantityValue))
         self.graph.add((height, self.qudt.unit, self.qudt_unit.Meter))
         self.graph.add((height, self.qudt.numericValue, Literal(50, datatype=XSD.decimal)))
         self.graph.add((self.building, self.bldg.hasHeight, height))
 
         # Define the floor area of the building
         floor_area = self.bldg["FloorArea"]
-        self.graph.add((floor_area, A.type, BRICK.Area))
+        self.graph.add((floor_area, A, BRICK.Area))
         self.graph.add((floor_area, self.qudt.unit, self.qudt_unit.SquareMeter))
         self.graph.add((floor_area, self.qudt.numericValue, Literal(6000, datatype=XSD.decimal)))
         self.graph.add((self.building, BRICK.hasArea, floor_area))
@@ -81,20 +81,20 @@ class BrickModel:
     def create_building_structure(self):
         # Define the floor of the building
         floor = self.bldg["Floor"]
-        self.graph.add((floor, A.type, BRICK.Floor))
+        self.graph.add((floor, A, BRICK.Floor))
         self.graph.add((floor, BRICK.hasName, Literal("First Floor", datatype=XSD.string)))
         self.graph.add((self.building, BRICK.hasPart, floor))
 
         # create Office 1 and add it to the floor
         self.office_one = self.bldg["Office1"]
-        self.graph.add((self.office_one, A.type, BRICK.Room))
+        self.graph.add((self.office_one, A, BRICK.Room))
         self.graph.add((self.office_one, BRICK.hasName, Literal("Office 1", datatype=XSD.string)))
         self.graph.add((self.office_one, BRICK.hasTag, Literal("office", datatype=XSD.string)))
         self.graph.add((floor, BRICK.hasPart, self.office_one))
 
-        # Create Office 2 and add it to the floor
+        # Create Office 2 and add it to the floor (refer to the code above in creating Office 1)
 
-        # create the Kitchen and assign it to the floor
+        # create the Kitchen and assign it to the floor (refer to the code above in creating Office 1)
 
         # Create the corridor and assign it to the floor (use BRICK.Room to create corridor)
 
@@ -138,14 +138,14 @@ class BrickModel:
         self.graph.add((self.office_one, BRICK.hasPoint, office_one_humidity_sensor))
         self.graph.add((self.office_one, BRICK.hasPoint, office_one_temperature_sensor))
 
-        # Add CO2, humidity and temperature sensors to Office 2
+        # Add CO2, humidity and temperature sensors to Office 2 (refer to the code above in creating sensors for office one)
 
         # Add CO2, CO (BRICK.CO_Sensor), humidity and temperature sensors to the Kitchen
 
     def create_hvac_ducts(self):
         """
-        Use tha Air_Handling_Unit in Bricks.
-        Currently, there is no support for ventilation ducts.
+        Use tha Air_Handling_Unit in Brick.
+        Currently, there is no support for ventilation ducts in Brick.
         The three connected ducts can be modelled as an air handling unit
         """
         # Add an air handling unit (AHU)
@@ -166,7 +166,7 @@ class BrickModel:
         self.graph.add((supply_air_fan, A, BRICK.Supply_Fan))
         self.graph.add((self.ahu, BRICK.hasPart, supply_air_fan))
 
-        # create the return air fan and add it to the AHU
+        # create the return air fan and add it to the AHU (use BRICK.Return_Fan)
 
         # create VAV Box 1 with damper and temperature sensor and add it to the AHU
         vav_box_1 = self.bldg["VAV_Box_1"]
@@ -187,11 +187,11 @@ class BrickModel:
 
         # add one temperature sensor to the AHU
 
-        # add one pressure sensor to the AHU
+        # add one pressure sensor to the AHU (use Brick.Pressure_Sensor)
 
         # add filter to the AHU (use BRICK.Filter)
 
-        # add one damper to the AHU
+        # add one damper to the AHU (use Brick.Damper)
 
         # Add the actuator in the return air duct (AHU)
         actuator = self.bldg["Actuator"]
@@ -207,9 +207,8 @@ class BrickModel:
         # indicate the actuator controls (BRICK.controls) the return air fan
         # (the fan should be been created above)
 
-        # create the temperature sensor and associate it with controller
+        # Associate the temperature sensor with the controller (controller Brick.hasPoint)
 
-        # add the controller and actuator to the return air duct (AHU)
 
 
 if __name__ == "__main__":
