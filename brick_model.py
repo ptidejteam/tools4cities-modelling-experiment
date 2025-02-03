@@ -224,4 +224,5 @@ if __name__ == "__main__":
     model = BrickModel()
     model.task_one()
     model.task_two()
+    # examine building_model.ttl to ensure all entities are created
     model.graph.serialize(destination="building_model.ttl", format="turtle")
