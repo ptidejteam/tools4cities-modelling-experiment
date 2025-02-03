@@ -7,6 +7,10 @@ from metamenth.enumerations import DamperType
 from metamenth.enumerations import SensorMeasure
 from metamenth.enumerations import SensorMeasureType
 from metamenth.enumerations import ZoneType
+from metamenth.enumerations import OpenSpaceType
+from metamenth.enumerations import FilterType
+from metamenth.enumerations import HeatExchangerType
+from metamenth.enumerations import HeatExchangerFlowType
 from metamenth.misc import MeasureFactory
 from metamenth.structure.building import Building
 from metamenth.structure.floor import Floor
@@ -81,10 +85,10 @@ class MetamenthModel:
         provide your code after each set of comments
         """
         # create Office 2 and add it to the floor.
-        # Use building.get_floor_by_number(1).add_rooms([office_two]) to add office two
+        # Use self.building.get_floor_by_number(1).add_rooms([office_two]) to add office two
 
         # create the Corridor and add it to the floor. Use the OpenSpace class
-        # Use .add_open_spaces([corridor]) to add the corridor to the floor
+        # Use self.building.get_floor_by_number(1).add_open_spaces([corridor]) to add the corridor to the floor
 
         # create the Kitchen and add it to the floor
 
@@ -99,7 +103,7 @@ class MetamenthModel:
 
     def add_sensors_to_spaces(self):
         """
-        Create and add sensors to Office 1 & 2, the Kitchen and the Corridor
+        Create and add sensors to Office 1 & 2, and the Kitchen
         """
         # Create and assign sensors to the rooms
         office_one_co2_sensor = Sensor("CO2.SENSOR.OFFICE.1", SensorMeasure.CARBON_DIOXIDE,
@@ -116,9 +120,9 @@ class MetamenthModel:
 
         # Add the remaining sensors to Office 1
 
-        # Add CO2, humidity and temperature sensors to Office 2
+        # Create and add CO2, humidity and temperature sensors to Office 2. Note, sensor names should be unique
 
-        # Create and add sensors to the Corridor
+        # Create and add sensors to the kitchen
 
     def create_hvac_ducts(self):
         """
@@ -136,15 +140,16 @@ class MetamenthModel:
         # connect the supply air that to the rooms with the spaces as the destination
         sup_air_space_conn = DuctConnection()
 
-        # add Office 1 as a destination
+        # add Office 1 as a destination of supply air duct
         sup_air_space_conn.add_entity(DuctConnectionEntityType.DESTINATION,
                                       self.building.get_floor_by_number(1).get_room_by_name('Office 1'))
 
-        # add Office 2 as a destination
+        # add Office 2 as a destination of supply air duct
 
-        # add Kitchen as destination
+        # add Kitchen as destination of supply air duct
 
-        # add Corridor as destination
+        # add Corridor as destination of supply air duct.
+        # Note: Use self.building.get_floor_by_number(1).get_open_space_by_name('Corridor') to retrieve the corridor
 
         # connect the supply air duct to the connection object
         supply_air_duct.connections = sup_air_space_conn
@@ -155,13 +160,17 @@ class MetamenthModel:
 
         # connect the return air duct to the connection object
 
-        # create the recirculation (fresh) air duct with name: RECIRCULATION.AIR.DUC
+        # create the recirculation (fresh) air duct with name: RECIRCULATION.AIR.DUCT
 
-        # create a duct connection object for (duct.connections) the recirculation air duct
+        # create a duct connection object for the recirculation air duct
 
         # add (duct.connections.add_entity) the return air duct as the source to the connection object
 
         # add the fresh air duct as the destination to the connection object
+
+        # connect the recirculation air duct to the connection object
+
+        # add the recirculation air duct as the source of the supply air duct
 
         # Create HVAC System with the vents and add it to the building
         ventilation_system = VentilationSystem(VentilationType.AIR_HANDLING_UNIT, supply_air_duct)
@@ -181,18 +190,19 @@ class MetamenthModel:
         supply_air_duct = ventilation_system.principal_duct
 
         # recirculation air duct
-        # Note, this will fail if you don't create the recirculation air duct in create_hvac_ducts()
-        recirculation_air_duct = supply_air_duct.connections.get_source_entities({'name': 'RECIRCULATION.AIR.DUC'})[0]
+        # Note, this will fail if you don't create the recirculation air duct and assign it as a source entity
+        # for the supply air duct in create_hvac_ducts()
+        recirculation_air_duct = supply_air_duct.connections.get_source_entities({'name': 'RECIRCULATION.AIR.DUCT'})[0]
 
         # return air duct
         # Note, this will fail if you don't create the recirculation air duct in create_hvac_ducts()
-        return_air_duct = recirculation_air_duct.connections.get_source_entities({'name': 'RETURN.AIR.DUC'})[0]
+        return_air_duct = recirculation_air_duct.connections.get_source_entities({'name': 'RETURN.AIR.DUCT'})[0]
 
         # add fan to the supply air duct
         supp_air_duct_fan = Fan("SUPP.AIR.DUCT.FAN", PowerState.ON, None)
         supply_air_duct.add_fan(supp_air_duct_fan)
 
-        # add filter to the supply air duct (use the Filter class)
+        # create and add filter to the supply air duct (use the Filter class)
 
         # add one heat exchanger to the supply air duct (use the HeatExchanger class)
 
@@ -200,7 +210,6 @@ class MetamenthModel:
 
         # add one pressure sensor to the supply air duct
 
-        # add the damper to the supply air duct
 
         # add VAV Box 1 with a damper and temperature sensor to supply air duct
         vav_box_1 = AirVolumeBox('VAV.BOX.1', AirVolumeType.VARIABLE_AIR_VOLUME)
@@ -224,23 +233,25 @@ class MetamenthModel:
 
         # add VAV Box 2 with damper and temperature sensor to the supply air duct
 
+        # indicate that vav box two supplies the Kitchen
+
         # create and add fan to the return air duct
 
-        # create the actuator (use the Actuator class)
-
-        # associate the actuator with the fan (use the trigger_out property of actuator)
+        # create the actuator (use the Actuator class) and associate the actuator with the fan in the return air duct
+        # (use the trigger_out property of actuator)
 
         # create a controller (use the Controller class)
 
-        # associate the actuator with the controller (use the controller property)
+        # associate the controller with the controller (use the controller property of the actuator)
 
-        # associate the controller with the actuator (use add_controller_entity method)
+        # associate the actuator with the controller (user the add_transducer method of the controller)
 
         # create a temperature sensor and associate it with the controller (use add_transducer method)
 
 
 if __name__ == "__main__":
     model = MetamenthModel()
+    model.task_one()
+    # This should print the ventilation system
+    print(model.building.control_systems[0].hvac_system.ventilation_systems[0])
     model.task_two()
-    model.task_two()
-    print(model.building)
